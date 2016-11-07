@@ -2,7 +2,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -23,6 +23,34 @@ public class Main {
         //inicia a lista de cartas contendo somente seus nomes
         List<String> nomesCartas = new ArrayList<>();
 
+        //Lista de médias
+
+        String[][] vetMedias = new String[3][54];
+
+        /*
+        Ler arquivos de médias
+         */
+        try {
+            FileReader arq = new FileReader("medias.txt");
+            BufferedReader lerArq = new BufferedReader(arq);
+
+            String linha = lerArq.readLine(); // lê a primeira linha
+            int i = 0;
+            while (linha != null) {
+                //   Faz um split por tab
+                String array[] = linha.split("\t");
+                vetMedias[i] = array;
+                i++;
+                linha = lerArq.readLine(); // lê da segunda até a última linha
+            }
+
+            arq.close();
+        } catch (IOException e) {
+            System.err.printf("Erro na abertura do arquivo: %s.\n",
+                    e.getMessage());
+        }
+
+
         //#################################################################################
         //Pega os respectivos Jsons de combos, e de cartas
         URI uri = new URI("http://andersoncarvalho.com/shirley/formatedCombos.json");
@@ -35,14 +63,14 @@ public class Main {
         //#################################################################################
 
         //Percorre o vetor de cartas e adiciona todas as abilities em uma lista gigante
-        for(int i = 1; i < 568; i++){
+        for (int i = 1; i < 568; i++) {
             JSONObject carta = todasCartas.getJSONObject("" + i);
             JSONArray abilities = carta.getJSONArray("abilities");
             nomesCartas.add(carta.getString("name"));
-            for(int j = 0; j < abilities.length(); j++){
+            for (int j = 0; j < abilities.length(); j++) {
                 JSONObject abilitie = abilities.getJSONObject(j);
                 String nomeAbilitie = abilitie.getString("ability");
-                if(!lsGeral.contains(nomeAbilitie)) {
+                if (!lsGeral.contains(nomeAbilitie)) {
                     lsGeral.add(nomeAbilitie);
                     Abilitie a = new Abilitie();
                     a.setAbility(nomeAbilitie);
@@ -53,27 +81,27 @@ public class Main {
         }
 
         //pega um combo e verifica suas respectivas cartas
-        for(int i = 1 ; i< 55; i++){
+        for (int i = 1; i < 55; i++) {
             List<Abilitie> laAtual = new ArrayList<>(laGeral);
             JSONObject combo = todosCombos.getJSONObject("" + i);
             JSONArray cartasDoCombo = combo.getJSONArray("cardsNames");
-            for(int j = 0 ; j < cartasDoCombo.length();j++){
-                if(nomesCartas.contains(cartasDoCombo.get(j).toString())){
+            for (int j = 0; j < cartasDoCombo.length(); j++) {
+                if (nomesCartas.contains(cartasDoCombo.get(j).toString())) {
                     int index = nomesCartas.indexOf(cartasDoCombo.get(j).toString()) + 1;
                     JSONObject carta = todasCartas.getJSONObject("" + index);
                     JSONArray abilities = carta.getJSONArray("abilities");
                     //pega as cartas e verifica suas abilitites
-                    for(int k = 0; k < abilities.length(); k++){
+                    for (int k = 0; k < abilities.length(); k++) {
                         JSONObject abilitie = abilities.getJSONObject(k);
                         String nomeAbilitie = abilitie.getString("ability");
                         //incrementa o contador de abilities dependendo de cada carta
-                        if(lsGeral.contains(nomeAbilitie)) {
+                        if (lsGeral.contains(nomeAbilitie)) {
                             int numOcorrAtual = laAtual.get(lsGeral.indexOf(nomeAbilitie)).getnOcorrencias() + 1;
                             Abilitie bla = new Abilitie();
                             bla.setnOcorrencias(numOcorrAtual);
                             bla.setAbility(nomeAbilitie);
                             laAtual.remove(lsGeral.indexOf(nomeAbilitie));
-                            laAtual.add(lsGeral.indexOf(nomeAbilitie),bla);
+                            laAtual.add(lsGeral.indexOf(nomeAbilitie), bla);
                         }
                     }
                 }
@@ -84,18 +112,34 @@ public class Main {
             listaCombos.add(bla);
         }
 
-
-        //for somente para fins de impressao da lista de combos e seus respectivios abilities.
-        for(int i = 0 ; i < listaCombos.size();i ++){
-            System.out.printf("Combo " + (i + 1) + " ");
-            for (int j = 0; j < listaCombos.get(i).getLa().size(); j++){
-                if(listaCombos.get(i).getLa().get(j).getnOcorrencias() != 0) {
-                    if(listaCombos.get(i).getLa().get(j).getnOcorrencias() != 0) {
-                        System.out.printf(listaCombos.get(i).getLa().get(j).getAbility() + ":" + listaCombos.get(i).getLa().get(j).getnOcorrencias() + "|");
-                    }
-                }
-            }
-            System.out.println("");
+        char separador = ';';
+        //for para geração do arquivo csv.
+        PrintWriter pw = new PrintWriter(new File("result.csv"));
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < lsGeral.size(); i++) {
+            sb.append(lsGeral.get(i));
+            sb.append(separador);
         }
+        sb.append("media_novidade");
+        sb.append(separador);
+        sb.append("media_valor");
+        sb.append(separador);
+        sb.append("media_rdc\n");
+
+        for (int i = 0; i < listaCombos.size(); i++) {
+            for (int j = 0; j < listaCombos.get(i).getLa().size(); j++) {
+                sb.append(listaCombos.get(i).getLa().get(j).getnOcorrencias());
+                sb.append(separador);
+            }
+            sb.append(vetMedias[0][i]);
+            sb.append(separador);
+            sb.append(vetMedias[1][i]);
+            sb.append(separador);
+            sb.append(vetMedias[2][i]);
+            sb.append("\n");
+        }
+
+        pw.write(sb.toString());
+        pw.close();
     }
 }
