@@ -12,7 +12,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException, URISyntaxException {
         //Inicia uma lista de abilities que conterá todas as abilities
-        List<Abilitie> laGeral = new ArrayList<>();
+        List<Ability> laGeral = new ArrayList<>();
 
         //Inicia a Lista de Combos
         List<Combo> listaCombos = new ArrayList<>();
@@ -68,12 +68,12 @@ public class Main {
             JSONArray abilities = carta.getJSONArray("abilities");
             nomesCartas.add(carta.getString("name"));
             for (int j = 0; j < abilities.length(); j++) {
-                JSONObject abilitie = abilities.getJSONObject(j);
-                String nomeAbilitie = abilitie.getString("ability");
-                if (!lsGeral.contains(nomeAbilitie)) {
-                    lsGeral.add(nomeAbilitie);
-                    Abilitie a = new Abilitie();
-                    a.setAbility(nomeAbilitie);
+                JSONObject ability = abilities.getJSONObject(j);
+                String nomeAbility = ability.getString("ability");
+                if (!lsGeral.contains(nomeAbility)) {
+                    lsGeral.add(nomeAbility);
+                    Ability a = new Ability();
+                    a.setAbility(nomeAbility);
                     a.setnOcorrencias(0);
                     laGeral.add(a);
                 }
@@ -82,7 +82,7 @@ public class Main {
 
         //pega um combo e verifica suas respectivas cartas
         for (int i = 1; i < 55; i++) {
-            List<Abilitie> laAtual = new ArrayList<>(laGeral);
+            List<Ability> laAtual = new ArrayList<>(laGeral);
             JSONObject combo = todosCombos.getJSONObject("" + i);
             JSONArray cartasDoCombo = combo.getJSONArray("cardsNames");
             for (int j = 0; j < cartasDoCombo.length(); j++) {
@@ -90,18 +90,22 @@ public class Main {
                     int index = nomesCartas.indexOf(cartasDoCombo.get(j).toString()) + 1;
                     JSONObject carta = todasCartas.getJSONObject("" + index);
                     JSONArray abilities = carta.getJSONArray("abilities");
+                    List<String> abilitiesAtual = new ArrayList<>();
                     //pega as cartas e verifica suas abilitites
                     for (int k = 0; k < abilities.length(); k++) {
-                        JSONObject abilitie = abilities.getJSONObject(k);
-                        String nomeAbilitie = abilitie.getString("ability");
-                        //incrementa o contador de abilities dependendo de cada carta
-                        if (lsGeral.contains(nomeAbilitie)) {
-                            int numOcorrAtual = laAtual.get(lsGeral.indexOf(nomeAbilitie)).getnOcorrencias() + 1;
-                            Abilitie bla = new Abilitie();
-                            bla.setnOcorrencias(numOcorrAtual);
-                            bla.setAbility(nomeAbilitie);
-                            laAtual.remove(lsGeral.indexOf(nomeAbilitie));
-                            laAtual.add(lsGeral.indexOf(nomeAbilitie), bla);
+                        JSONObject ability = abilities.getJSONObject(k);
+                        String nomeAbility = ability.getString("ability");
+                        if(!abilitiesAtual.contains(nomeAbility)){
+                            abilitiesAtual.add(nomeAbility);
+                            //incrementa o contador de abilities dependendo de cada carta
+                            if (lsGeral.contains(nomeAbility)) {
+                                int numOcorrAtual = laAtual.get(lsGeral.indexOf(nomeAbility)).getnOcorrencias() + 1;
+                                Ability bla = new Ability();
+                                bla.setnOcorrencias(numOcorrAtual);
+                                bla.setAbility(nomeAbility);
+                                laAtual.remove(lsGeral.indexOf(nomeAbility));
+                                laAtual.add(lsGeral.indexOf(nomeAbility), bla);
+                            }
                         }
                     }
                 }

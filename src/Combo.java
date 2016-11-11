@@ -5,13 +5,13 @@ import java.util.List;
  */
 public class Combo {
 
-    private List<Abilitie> la;
+    private List<Ability> la;
 
-    public List<Abilitie> getLa() {
+    public List<Ability> getLa() {
         return la;
     }
 
-    public void setLa(List<Abilitie> la) {
+    public void setLa(List<Ability> la) {
         this.la = la;
     }
 }
