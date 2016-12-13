@@ -95,8 +95,10 @@ public class Main {
                     for (int k = 0; k < abilities.length(); k++) {
                         JSONObject ability = abilities.getJSONObject(k);
                         String nomeAbility = ability.getString("ability");
-                        if(!abilitiesAtual.contains(nomeAbility)){
-                            abilitiesAtual.add(nomeAbility);
+
+                        //Para contar o numero de habilidades de forma unica por carta, descomentar if abaixo
+            //          if(!abilitiesAtual.contains(nomeAbility)){
+            //               abilitiesAtual.add(nomeAbility);
                             //incrementa o contador de abilities dependendo de cada carta
                             if (lsGeral.contains(nomeAbility)) {
                                 int numOcorrAtual = laAtual.get(lsGeral.indexOf(nomeAbility)).getnOcorrencias() + 1;
@@ -106,7 +108,7 @@ public class Main {
                                 laAtual.remove(lsGeral.indexOf(nomeAbility));
                                 laAtual.add(lsGeral.indexOf(nomeAbility), bla);
                             }
-                        }
+            //          }
                     }
                 }
             }
